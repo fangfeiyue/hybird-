@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <button onclick="getLocation();" id="btn">获取位置</button>
+    <button onclick="pay();" id="btn">支付</button>
+    <button onclick="test();">测试</button>
+    <input id="location" />
+    <input id="returnValue" />
+</body>
+<script src="./jsbridge.js"></script>
+<script>
+    
+    function getLocation() {
+        window.webkit.messageHandlers.Location.postMessage(null);
+    }
+
+    function setData1(location) {
+        document.getElementById('location').value = location;
+    }
+
+    function pay() {
+        window.webkit.messageHandlers.Pay.postMessage({
+            order_no: '201710905981234',
+            channel: 'web',
+            amount: 10,
+            subject: 'iphone'
+        });
+    }
+
+    function payResult(str) {
+        document.getElementById("returnValue").value = str;
+    }
+
+    var wrapPromise = function wrapPromise(fn) {
+        return function () {
+            for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+                args[_key] = arguments[_key];
+            }
+
+            var p = new Promise(function (resovle) {
+                fn.apply(undefined, args.concat([function (res) {
+                    resovle(res);
+                }]));
+            });
+            return p;
+        };
+    };
+
+    function test() {
+         wrapPromise(window.JSBridge.callHandler)('uploadImage',{
+            order_no: '201710905981234',
+            channel: 'web',
+            amount: 10,
+            subject: 'iphone'
+        }).then(function(res){
+            alert('原生给的数据：'+res);
+        });
+    }
+</script>
+
+</html>
